@@ -1,119 +1,6 @@
-# import numpy as np 
-# # import cv2
-# import hand_tracking_module as htm
-# import cv2
-# import time
-# import mediapipe as mp
-# mp_drawing = mp.solutions.drawing_utils
-# mp_drawing_styles = mp.solutions.drawing_styles
-# mp_hands = mp.solutions.hands
-# prev_time = 0
-
-# cap = cv2.VideoCapture(0)
-# with mp_hands.Hands(
-#     model_complexity=1,
-#     min_detection_confidence=0.5,
-#     min_tracking_confidence=0.5) as hands:
-#   while cap.isOpened():
-#     success, image = cap.read()
-#     if not success:
-#       print("Ignoring empty camera frame.")
-#       # If loading a video, use 'break' instead of 'continue'.
-#       continue
-#     # current_time = time.time() 
-#     # fps = 1 / (current_time - prev_time)
-#     # prev_time = current_time
-#     # cv2.putText(image , str(int(fps)) , (10 , 50) , cv2.FONT_HERSHEY_PLAIN , 3 , (255 ,0 ,0) , 3)
-#     # To improve performance, optionally mark the image as not writeable to
-#     # pass by reference.
-#     image.flags.writeable = False
-#     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-#     results = hands.process(image)
-
-#     # Draw the hand annotations on the image.
-#     image.flags.writeable = True
-#     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-#     if results.multi_hand_landmarks:
-#       for hand_landmarks in results.multi_hand_landmarks:
-#         mp_drawing.draw_landmarks(
-#             image,
-#             hand_landmarks,
-#             mp_hands.HAND_CONNECTIONS,
-#             mp_drawing.DrawingSpec(color=(255 , 0 ,150 ) , thickness= 2 , circle_radius= 2 ) ,mp_drawing.DrawingSpec(color= (255 , 150 , 0), thickness= 2 , circle_radius= 2 ) )
-#     # Flip the image horizontally for a selfie-view display.
-#     cv2.imshow('MediaPipe Hands', cv2.flip(image, 1))
-#     if cv2.waitKey(1) & 0xFF == ord("q"):
-#       break
-# cap.release()
-
-
-"""
-Hand Tracing Module
-By: Murtaza Hassan
-Youtube: http://www.youtube.com/c/MurtazasWorkshopRoboticsandAI
-Website: https://www.computervision.zone/
-"""
-
 import cv2
 import mediapipe as mp
-import time
 import math
-import numpy as np
-import os
-from datetime import datetime
-
-class face_detector():
-    def __init__(self, mode= 0, detection_conf =0.5 ):
-        
-        self.mode = mode
-        self.detection_conf = detection_conf   
-        self.IS_FACE = False
-
-        self.mp_face_detection = mp.solutions.face_detection
-        self.face = self.mp_face_detection.FaceDetection(self.mode,self.detection_conf)
-        self.mpDraw = mp.solutions.drawing_utils
-
-    def detect_face(self, img , draw=True):
-        
-        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        results = self.face.process(img_rgb)
-
-        # Draw the face detection annotations on the image.
-        
-        img_gbr = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR)
-        if results.detections:
-            self.IS_FACE = True
-            for detection in results.detections:
-                if draw:
-                    self.mpDraw.draw_detection(img_gbr, detection)
-            # Flip the image horizontally for a selfie-view display.
-        else:
-            self.IS_FACE = False
-        return img_gbr
-
-    def is_face(self):
-        if self.IS_FACE == True:
-            return True
-
-    def take_picture(self , img):
-        
-        # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        # os.chdir(directory)
-        datetime_ = datetime.now()
-        time_ = datetime_.strftime("%X").replace(":","-")
-        date_ = datetime_.strftime("%x").replace("/","-")
-        date_time = "{}.png".format(datetime_.strftime("%c")).replace(" " , "-").replace(":" , "-")
-        # directory = rf"C:\Users\Morvarid\Desktop\python\open_cv\hand_tracking\saved_pictures{date_time}"
-        directory = rf"C:\Users\Morvarid\Documents\saved_images\_date={date_}_time={time_}.jpg"
-        cv2.imwrite(directory , img)
-        if not cv2.imwrite(directory , img):
-            print("the shit didn't save...")
-        else:    
-            print("the image is saved")
-
-        
-
-
 
 class handDetector():
     def __init__(self, mode=False, maxHands=2, detectionCon=0.5, modelComplexity =1 , trackCon=0.5):
@@ -186,12 +73,7 @@ class handDetector():
         return self.lmList, bbox
 
     def find_Hands(self, img, draw=True, flipType=True):
-        """
-        Finds hands in a BGR image.
-        :param img: Image to find the hands in.
-        :param draw: Flag to draw the output on the image.
-        :return: Image with or without drawings
-        """
+
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         self.results = self.hands.process(imgRGB)
         allHands = []
@@ -260,8 +142,6 @@ class handDetector():
             else:
                 fingers.append(0)
 
-        # totalFingers = fingers.count(1)
-
         return fingers
 
     def findDistance(self, p1, p2, img, draw=True,r=15, t=3):
@@ -284,7 +164,6 @@ def main():
     cTime = 0
     cap = cv2.VideoCapture(0)
     detector = handDetector()
-    # print("the handDetector class contains : " + "\n" + str(dir(handDetector)))
     while True:
         success, img = cap.read()
         img = detector.findHands(img)
@@ -293,21 +172,9 @@ def main():
             print(" y = " + str(lmList[8][2]))
             print(" x = "+ str(lmList[8][1]))
 
-        # cTime = time.time()
-        # fps = 1 / (cTime - pTime)
-        # pTime = cTime
-
-        # cv2.putText(img, str(int(fps)), (10, 70), cv2.FONT_HERSHEY_PLAIN, 3,
-        #             (255, 0, 255), 3)
-
         cv2.imshow("Image", img)
         if cv2.waitKey(1)== ord('q'):
             break
 
-
-
 if __name__ == "__main__":
     main()
-
-
-    # caeri

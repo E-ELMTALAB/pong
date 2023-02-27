@@ -58,74 +58,59 @@ cyn_shape = cyan_pad.shape
 white_shape = white_background.shape
 white_background[50: 50+mag_shape[0] , 50:50+mag_shape[1]] = magenta_pad
 
-#### add the pad and the ball images on the background image
 
-# lastpos_cyn = 10
-# print("height : " +str(white_shape[0]) + "width : " +str(white_shape[1])) 
-
-
-#loop 
-
+##################################################
+#### the main loopo
+##################################################
 while cv2.waitKey(1) != ord("q"):
 
-    # white_background[mag_pad_y: mag_pad_y+mag_shape[0] , 250:250+mag_shape[1]] = magenta_pad
+    #### getting the background image
     white_background = cv2.imread(r"C:\python\open_cv\hand_tracking\white.jpg")
     white_background = cv2.resize(white_background ,(0,0), fx=3 , fy=1.6)
 
-
     ret , frame = cap.read()
-    # frame = hand_detector.findHands(frame)
-    hands , frame = hand_detector.find_Hands(frame)
-    # position , bbox = hand_detector.findPosition(frame)
-    # lmList = hand_detector.findPosition(frame)
-    # if len(hands) != 0:
-    #     print(hands)
 
+    #### finding the hands and their positions
+    hands , frame = hand_detector.find_Hands(frame)
+
+    #### the score of the players 
     cv2.putText(white_background , "magenta player:" + str(mag_score), ( 140 , 100) , cv2.FONT_HERSHEY_PLAIN , 2 , (0,0,0) , 2)
     cv2.putText(white_background , "cyan player:" + str(cyn_score), ( 990 , 100) , cv2.FONT_HERSHEY_PLAIN , 2 , (0,0,0) , 2)
-        # cv2.circle(frame , (lmList[8][1],lmList[8][2]) , 16 ,(0,0,0),2)
-        # y = lmList[8][2]   
 
-
-
-    # mag_pad_y += 1
-    # cyn_pad_y +=1
-
+    ##################################################
+    #### find two hands and changes the ball pos according to the positions of the hands
+    ##################################################
     for hand in hands:
+
         if hand["type"] == "Left":
 
             if hand["lmList"][8][1] < 550 and hand["lmList"][8][1] > 10:
                 white_background[hand["lmList"][8][1]: hand["lmList"][8][1]+cyn_shape[0] , 1280:1280 +cyn_shape[1]] = cyan_pad
-                # cv2.circle(white_background ,(1280 ,  hand["lmList"][8][1]) , 5 , (255, 255, 0) , -1 )
-                # cv2.circle(white_background ,(1280 ,  hand["lmList"][8][1] + cyn_shape[0]) , 5 , (255, 255, 0) , -1 )
+
                 if ball_posx > 1250 and (hand["lmList"][8][1] <= ball_posy <= hand["lmList"][8][1] + cyn_shape[0]):
                     speedx = -speedx
                 lastpos_cyn = hand["lmList"][8][1]
-                # print(hand["lmList"][8][1])
             else :
                 white_background[lastpos_cyn: lastpos_cyn +cyn_shape[0] , 1280:1280 +cyn_shape[1]] = cyan_pad
                 if ball_posx > 1250 and (hand["lmList"][8][1] <= ball_posy <= hand["lmList"][8][1] + cyn_shape[0]):
                     speedx = -speedx
 
-
         if hand["type"] == "Right":
-            # white_background[hand["lmList"][8][1]: hand["lmList"][8][1]+mag_shape[0] , 50:50+mag_shape[1]] = magenta_pad
-            # cv2.circle(frame ,(hand["lmList"][8][0] , hand["lmList"][8][1]),3 , (0,255 , 0) , 2 )
+
             if hand["lmList"][8][1] < 550 and hand["lmList"][8][1] > 10:
                 white_background[hand["lmList"][8][1]: hand["lmList"][8][1]+mag_shape[0] , 50:50 +mag_shape[1]] = magenta_pad
                 lastpos_mag = hand["lmList"][8][1]
-                # cv2.circle(white_background , ( 110, hand["lmList"][8][1]) , 5 , (255 , 255 ,0) , -1)
-                # cv2.circle(white_background , (110 , hand["lmList"][8][1] + mag_shape[0]) , 5 , (255 , 255, 0), -1)
+
                 if ball_posx <131 and (hand["lmList"][8][1]<=ball_posy<=hand["lmList"][8][1] + mag_shape[0]):
                     speedx = -speedx
-                # print(hand["lmList"][8][1])
             else :
                 white_background[lastpos_mag: lastpos_mag +mag_shape[0] , 50:50 +mag_shape[1]] = magenta_pad
                 if ball_posx <131 and (hand["lmList"][8][1]<=ball_posy<=hand["lmList"][8][1] + mag_shape[0]):
                     speedx = -speedx
 
-# move the ball 
-
+    ##################################################
+    #### move the ball
+    ##################################################
     ball_posx += speedx
     ball_posy += speedy
 
@@ -148,32 +133,4 @@ while cv2.waitKey(1) != ord("q"):
         speedx = -speedx
         speedy = -speedy
 
-    #bounce the ball from the pads
-    # if ball_posx > 1250 and (hand["lmList"][8][1] <= ball_posy <= hand["lmList"][8][1] + cyn_shape[0]):
-    #     speedx = -speedx
-    # if ball_posx < 50 and (hand["lmList"][8][1] <= ball_posy <= hand["lmList"][8][1] + cyn_shape[0]):
-    #     speedx = -speedx
-
-
-
-    # if hand["lmList"][8][1] > 520:
-    #     white_background = cv2.imread(r"C:\Users\Morvarid\Desktop\python\open_cv\hand_tracking\white.jpg")
-    #     white_background = cv2.resize(white_background ,(0,0), fx=3 , fy=1.6)
-    #     white_background[400: 400+cyn_shape[0] , 1280:1280 +cyn_shape[1]] = cyan_pad
-
-
-    # new_white = white_background
-    # if cyn_pad_y > 450:
-    #     break
-
-
     cv2.imshow("the hands" , white_background)
-    # cv2.imshow("the hand " , frame)
-
-
-# move the pads accordint to the position of the hand in the frame
-
-
-#move the ball and handle the won and the loss of the game 
-
-
