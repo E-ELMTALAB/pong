@@ -116,6 +116,7 @@ while cv2.waitKey(1) != ord("q"):
 
     ball = cv2.circle(white_background , (ball_posx ,ball_posy) , 26 , (255 , 255 , 0) , -1 )
 
+    #### reverse the movement if the ball goes of the screen
     if ball_posy > 650 or ball_posy < 90:
         speedy = -speedy
     if ball_posx > 1350 :
